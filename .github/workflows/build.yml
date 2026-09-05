@@ -1,0 +1,51 @@
+# Builds the single-module Fabric port on every push / pull request.
+# Minecraft 26.1 requires Java 25, so this uses a newer JDK than the
+# multiplatform-1.21.4 branch does.
+name: Build
+
+on:
+  push:
+    branches: [ "fabric-26.1.2" ]
+  pull_request:
+    branches: [ "fabric-26.1.2" ]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      # Configures Gradle and caches downloaded dependencies (including the
+      # Loom-provided Minecraft artifacts) between runs.
+      # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build --stacktrace
+
+      - name: Read mod version
+        id: props
+        run: echo "mod_version=$(sed -n 's/^ *mod_version *= *//p' gradle.properties | tr -d '\r')" >> "$GITHUB_OUTPUT"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcft-${{ steps.props.outputs.mod_version }}-build${{ github.run_number }}
+          path: build/libs/*.jar
+          if-no-files-found: error
