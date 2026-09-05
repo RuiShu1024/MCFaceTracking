@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "package": "com.github.squi2rel.mcft.mixin",
+  "plugin": "com.github.squi2rel.mcft.mixin.MCFTMixinPlugin",
+  "compatibilityLevel": "JAVA_25",
+  "minVersion": "0.8",
+  "client": [
+    "client.ClientPacketListenerMixin",
+    "client.CubeDefinitionAccessor",
+    "client.CubeDeformationAccessor",
+    "client.GameRendererMixin",
+    "client.ModelPartAccessor",
+    "client.ModelPartRenderMixin",
+    "client.PartDefinitionAccessor",
+    "client.PartDefinitionMixin",
+    "client.PlayerModelMixin"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
